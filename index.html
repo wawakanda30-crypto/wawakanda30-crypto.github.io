@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>体重统计</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+body{background:#f9f7f4;color:#333;padding:16px;max-width:600px;margin:0 auto}
+.tab-wrap{display:flex;justify-content:center;gap:8px;margin-bottom:16px}
+.tab{padding:8px 20px;border-radius:999px;font-size:16px;border:none;background:#fff;color:#666}
+.tab.active{background:#e53e3e;color:#fff}
+.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:16px}
+.target-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.target-avatar{width:36px;height:36px;border-radius:50%;background:#fee2e2;color:#e53e3e;display:grid;place-items:center}
+.target-text h4{font-size:17px;font-weight:600}
+.target-text p{font-size:13px;color:#777;margin-top:2px}
+.progress-row{display:flex;align-items:center;gap:20px}
+.circle-box{position:relative;width:130px;height:130px}
+.circle-bg{stroke:#f3f4f6;stroke-width:9;fill:none}
+.circle-ring{stroke:#e53e3e;stroke-width:9;fill:none;stroke-linecap:round;transform:rotate(-90deg);transform-origin:center}
+.circle-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.c-num{font-size:28px;font-weight:700}
+.c-sub{font-size:14px;color:#777}
+.info-right{flex:1}
+.info-right .pct{font-size:24px;font-weight:700}
+.info-right .desc{font-size:14px;color:#666;margin-top:4px}
+.chart-container{width:100%;overflow-x:auto;padding-bottom:8px}
+.chart-wrap{min-width:700px;height:260px}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat-item h3{font-size:26px;font-weight:700}
+.stat-item p{font-size:14px;color:#777;margin-top:4px}
+.record-input{display:flex;gap:10px;margin-bottom:16px}
+#weightInput{flex:1;padding:14px 16px;border-radius:12px;border:1px solid #e5e7eb;font-size:18px;outline:none}
+#saveBtn{padding:14px 20px;background:#e53e3e;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600}
+.history-item{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #eee}
+.left-info{line-height:1.4}
+.dt{font-size:16px}
+.tm{font-size:13px;color:#888}
+.right-area{display:flex;align-items:center;gap:16px}
+.w-val{font-size:19px;font-weight:600}
+.del-btn{color:#e53e3e;font-size:15px;cursor:pointer}
+.clear-btn{width:100%;padding:14px;background:#fee2e2;color:#e53e3e;border:none;border-radius:12px;margin-top:16px;font-size:16px}
+.tip{text-align:center;color:#999;font-size:12px;margin:10px 0}
+.page{display:none}
+.page.active{display:block}
+</style>
+</head>
+<body>
+<div class="tab-wrap">
+  <button class="tab" data-page="record">记录</button>
+  <button class="tab active" data-page="stat">统计</button>
+</div>
+
+<div class="page" id="recordPage">
+  <div class="record-input">
+    <input id="weightInput" placeholder="输入体重(斤)" type="number" step="0.1">
+    <button id="saveBtn">保存</button>
+  </div>
+  <div class="card">
+    <div class="history-title" style="font-size:18px;font-weight:600;margin-bottom:12px">历史记录</div>
+    <div id="historyList"></div>
+    <button class="clear-btn" id="clearBtn">清空全部记录</button>
+  </div>
+  <div class="tip">数据保存在本机浏览器，清除浏览器缓存会丢失</div>
+</div>
+
+<div class="page active" id="statPage">
+  <div class="card">
+    <div class="target-head">
+      <div class="target-avatar">👤</div>
+      <div class="target-text">
+        <h4>体重</h4>
+        <p>负向目标：<span id="goalText">140</span>斤 / 每月</p>
+      </div>
+    </div>
+    <div class="progress-row">
+      <div class="circle-box">
+        <svg width="130" height="130">
+          <circle class="circle-bg" cx="65" cy="65" r="55"></circle>
+          <circle id="progressRing" class="circle-ring" cx="65" cy="65" r="55" stroke-dasharray="345.4" stroke-dashoffset="345.4"></circle>
+        </svg>
+        <div class="circle-inner">
+          <div class="c-num" id="ringVal">0</div>
+          <div class="c-sub">/ <span id="ringGoal">140</span></div>
+        </div>
+      </div>
+      <div class="info-right">
+        <div class="pct" id="pctText">0%</div>
+        <div class="desc" id="progressDesc">--</div>
+        <div style="margin-top:8px;color:#e53e3e;font-size:14px;cursor:pointer" id="editGoal">修改目标</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <span>📏</span>
+      <span style="font-size:17px;font-weight:600">体重 (斤)</span>
+    </div>
+    <div class="chart-container">
+      <div class="chart-wrap">
+        <canvas id="chart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="card stat-grid">
+    <div class="stat-item">
+      <h3 id="latest">--</h3>
+      <p>最新数值</p>
+    </div>
+    <div class="stat-item">
+      <h3 id="count">0</h3>
+      <p>记录次数</p>
+    </div>
+    <div class="stat-item">
+      <h3 id="max">--</h3>
+      <p>最高数值</p>
+    </div>
+    <div class="stat-item">
+      <h3 id="min">--</h3>
+      <p>最低数值</p>
+    </div>
+  </div>
+  <div class="tip">图表区域可以左右滑动查看更早日期，同一天多条记录全部展示</div>
+</div>
+
+<script>
+const RING_CIRC = 2 * Math.PI * 55;
+let goalWeight = parseFloat(localStorage.getItem('goalWeight')) || 140;
+let records = JSON.parse(localStorage.getItem('weightRecords') || '[]');
+let chart = null;
+
+// 标签切换
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.onclick = ()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    const pid = tab.dataset.page === 'record' ? 'recordPage' : 'statPage';
+    document.getElementById(pid).classList.add('active');
+    if(pid === 'statPage') renderChart();
+  }
+})
+
+function saveStorage(){
+  localStorage.setItem('weightRecords', JSON.stringify(records));
+  localStorage.setItem('goalWeight', goalWeight);
+}
+
+function getMonthRecords(){
+  const now = new Date();
+  const curMonth = now.getMonth();
+  const curYear = now.getFullYear();
+  return records.filter(r=>{
+    const d = new Date(r.rawTime);
+    return d.getMonth() === curMonth && d.getFullYear() === curYear;
+  })
+}
+
+function updateStat(){
+  const monthRec = getMonthRecords();
+  document.getElementById('goalText').innerText = goalWeight;
+  document.getElementById('ringGoal').innerText = goalWeight;
+  if(monthRec.length ===0){
+    document.getElementById('ringVal').innerText = '--';
+    document.getElementById('pctText').innerText = '0%';
+    document.getElementById('progressDesc').innerText = '暂无本月数据';
+    document.getElementById('latest').innerText = '--';
+    document.getElementById('count').innerText = '0';
+    document.getElementById('max').innerText = '--';
+    document.getElementById('min').innerText = '--';
+    document.getElementById('progressRing').style.strokeDashoffset = RING_CIRC;
+    return;
+  }
+  const vals = monthRec.map(x=>x.weight);
+  const latestVal = vals[vals.length-1];
+  const maxVal = Math.max(...vals);
+  const minVal = Math.min(...vals);
+  const total = latestVal;
+  const ratio = total / goalWeight;
+  const pct = (ratio * 100).toFixed(1);
+  document.getElementById('ringVal').innerText = total;
+  document.getElementById('pctText').innerText = pct + '%';
+  document.getElementById('progressDesc').innerText = total > goalWeight ? `已超出 ${(total-goalWeight).toFixed(1)}斤，本月目标已失败` : `还差 ${(goalWeight-total).toFixed(1)}斤达成目标`;
+  const offset = RING_CIRC - Math.min(1, ratio) * RING_CIRC;
+  document.getElementById('progressRing').style.strokeDashoffset = offset;
+  document.getElementById('latest').innerText = latestVal.toFixed(1);
+  document.getElementById('count').innerText = monthRec.length;
+  document.getElementById('max').innerText = maxVal.toFixed(1);
+  document.getElementById('min').innerText = minVal.toFixed(1);
+}
+
+function renderChart(){
+  const ctx = document.getElementById('chart').getContext('2d');
+  if(chart) chart.destroy();
+  const monthRec = getMonthRecords();
+  if(monthRec.length ===0) return;
+  // 按日期分组，同一天多条全部保留
+  const groups = {};
+  monthRec.forEach(r=>{
+    const d = new Date(r.rawTime);
+    const key = `${d.getMonth()+1}/${d.getDate()}`;
+    if(!groups[key]) groups[key] = [];
+    groups[key].push(r.weight);
+  })
+  const labels = Object.keys(groups);
+  const datasets = [{
+    label:'体重',
+    data: labels.map(k=>groups[k]),
+    borderColor:'#e53e3e',
+    backgroundColor:'rgba(229,62,62,0.12)',
+    fill:true,
+    tension:0.25,
+    pointRadius:5,
+    pointHoverRadius:7
+  }]
+  chart = new Chart(ctx,{
+    type:'line',
+    data:{labels,datasets},
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      parsing:{xAxisKey:'x'},
+      scales:{
+        y:{suggestedMin: Math.min(...monthRec.map(x=>x.weight))-3, suggestedMax: Math.max(...monthRec.map(x=>x.weight))+3}
+      },
+      plugins:{legend:{display:false}}
+    }
+  })
+  // 滚动到最右侧最新日期
+  const box = document.querySelector('.chart-container');
+  box.scrollLeft = box.scrollWidth;
+}
+
+function renderHistory(){
+  const wrap = document.getElementById('historyList');
+  wrap.innerHTML = '';
+  [...records].reverse().forEach((item,idx)=>{
+    const realIdx = records.length - 1 - idx;
+    const d = new Date(item.rawTime);
+    const dateStr = `${d.getMonth()+1}/${d.getDate()}`;
+    const timeStr = `${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    div.innerHTML = `
+      <div class="left-info">
+        <div class="dt">${dateStr}</div>
+        <div class="tm">${timeStr}</div>
+      </div>
+      <div class="right-area">
+        <span class="w-val">${item.weight.toFixed(1)} 斤</span>
+        <span class="del-btn" data-i="${realIdx}">删除</span>
+      </div>
+    `
+    wrap.appendChild(div);
+  })
+}
+
+function bindEvent(){
+  document.getElementById('saveBtn').onclick = ()=>{
+    const v = parseFloat(document.getElementById('weightInput').value);
+    if(isNaN(v) || v<=0) return alert('请输入有效的体重');
+    records.push({weight:v, rawTime: new Date().toISOString()});
+    saveStorage();
+    document.getElementById('weightInput').value='';
+    renderHistory();
+    updateStat();
+  }
+  document.getElementById('editGoal').onclick = ()=>{
+    const input = prompt('设置本月目标体重(斤)', goalWeight);
+    if(input===null) return;
+    const num = parseFloat(input);
+    if(isNaN(num) || num<=0) return alert('数值错误');
+    goalWeight = num;
+    saveStorage();
+    updateStat();
+    renderChart();
+  }
+  document.getElementById('historyList').onclick = e=>{
+    if(e.target.classList.contains('del-btn')){
+      const i = Number(e.target.dataset.i);
+      records.splice(i,1);
+      saveStorage();
+      renderHistory();
+      updateStat();
+      renderChart();
+    }
+  }
+  document.getElementById('clearBtn').onclick = ()=>{
+    if(!confirm('确定清空全部记录？不可恢复！')) return;
+    records = [];
+    saveStorage();
+    renderHistory();
+    updateStat();
+    renderChart();
+  }
+}
+
+function init(){
+  renderHistory();
+  updateStat();
+  renderChart();
+  bindEvent();
+}
+init();
+</script>
+</body>
+</html>
