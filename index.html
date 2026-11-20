@@ -2,311 +2,324 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>体重统计</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum‑scale=1.0, user‑scalable=no">
+<title>体重记录</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,sans-serif}
-body{background:#f9f7f4;color:#333;padding:16px;max-width:600px;margin:0 auto}
-.tab-wrap{display:flex;justify-content:center;gap:8px;margin-bottom:16px}
-.tab{padding:8px 20px;border-radius:999px;font-size:16px;border:none;background:#fff;color:#666}
-.tab.active{background:#e53e3e;color:#fff}
-.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:16px}
-.target-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.target-avatar{width:36px;height:36px;border-radius:50%;background:#fee2e2;color:#e53e3e;display:grid;place-items:center}
-.target-text h4{font-size:17px;font-weight:600}
-.target-text p{font-size:13px;color:#777;margin-top:2px}
-.progress-row{display:flex;align-items:center;gap:20px}
-.circle-box{position:relative;width:130px;height:130px}
-.circle-bg{stroke:#f3f4f6;stroke-width:9;fill:none}
-.circle-ring{stroke:#e53e3e;stroke-width:9;fill:none;stroke-linecap:round;transform:rotate(-90deg);transform-origin:center}
-.circle-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.c-num{font-size:28px;font-weight:700}
-.c-sub{font-size:14px;color:#777}
-.info-right{flex:1}
-.info-right .pct{font-size:24px;font-weight:700}
-.info-right .desc{font-size:14px;color:#666;margin-top:4px}
-.chart-container{width:100%;overflow-x:auto;padding-bottom:8px}
-.chart-wrap{min-width:700px;height:260px}
-.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.stat-item h3{font-size:26px;font-weight:700}
-.stat-item p{font-size:14px;color:#777;margin-top:4px}
-.record-input{display:flex;gap:10px;margin-bottom:16px}
-#weightInput{flex:1;padding:14px 16px;border-radius:12px;border:1px solid #e5e7eb;font-size:18px;outline:none}
-#saveBtn{padding:14px 20px;background:#e53e3e;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600}
-.history-item{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #eee}
-.left-info{line-height:1.4}
-.dt{font-size:16px}
-.tm{font-size:13px;color:#888}
-.right-area{display:flex;align-items:center;gap:16px}
-.w-val{font-size:19px;font-weight:600}
-.del-btn{color:#e53e3e;font-size:15px;cursor:pointer}
-.clear-btn{width:100%;padding:14px;background:#fee2e2;color:#e53e3e;border:none;border-radius:12px;margin-top:16px;font-size:16px}
-.tip{text-align:center;color:#999;font-size:12px;margin:10px 0}
-.page{display:none}
-.page.active{display:block}
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+    background:#F4F4F6; color:#222; max-width:480px; margin:0 auto; min-height:100vh;
+    padding-bottom:30px;
+  }
+  /* 顶部栏 */
+  .navbar {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 16px; background:#F4F4F6;
+  }
+  .navbar .back { font-size:20px; color:#333; width:30px; }
+  .navbar .title { font-size:17px; font-weight:600; }
+  .navbar .right { width:30px; }
+  .tabs {
+    display:flex; background:#F0F0F2; border-radius:20px; padding:3px;
+  }
+  .tabs span { font-size:13px; padding:5px 16px; border-radius:18px; color:#666; }
+  .tabs span.active { background:#E8565C; color:#fff; font-weight:600; }
+  .card {
+    background:#fff; border-radius:16px; margin:10px 14px; padding:16px;
+    box-shadow:0 1px 3px rgba(0,0,0,.05);
+  }
+  /* 目标区 */
+  .goal-head { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .goal-head .icon {
+    width:38px; height:38px; border-radius:50%; background:#FDECEC;
+    display:flex; align-items:center; justify-content:center; font-size:18px;
+  }
+  .goal-head .g-name { font-size:16px; font-weight:600; }
+  .goal-head .g-sub { font-size:12px; color:#999; margin-top:2px; }
+  .goal-stats { display:flex; gap:24px; margin-bottom:14px; }
+  .goal-stats .gs-num { font-size:22px; font-weight:700; }
+  .goal-stats .gs-label { font-size:12px; color:#999; margin-top:3px; }
+  .goal-mid { display:flex; align-items:center; gap:18px; }
+  .ring-wrap { position:relative; width:110px; height:110px; flex-shrink:0; }
+  .ring-wrap svg { transform:rotate(-90deg); }
+  .ring-center {
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+  }
+  .ring-center .rc-num { font-size:22px; font-weight:700; }
+  .ring-center .rc-sub { font-size:12px; color:#999; }
+  .goal-text .gt-title { font-size:16px; font-weight:600; margin-bottom:6px; }
+  .goal-text .gt-desc { font-size:13px; color:#999; line-height:1.6; }
+  .goal-edit { font-size:12px; color:#E8565C; margin-top:8px; cursor:pointer; display:inline-block; }
+  /* 图表 */
+  .chart-card .chart-title { display:flex; align-items:center; gap:6px; font-size:15px; font-weight:600; margin-bottom:10px; }
+  .chart-scroll { overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; }
+  .chart-scroll::-webkit-scrollbar { height:4px; }
+  .chart-scroll::-webkit-scrollbar-thumb { background:#ddd; border-radius:2px; }
+  .chart-box { position:relative; }
+  .chart-box svg { display:block; }
+  /* 统计 2x2 */
+  .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .stat-item .si-num { font-size:20px; font-weight:700; }
+  .stat-item .si-label { font-size:12px; color:#999; margin-top:4px; }
+  /* 录入区 */
+  .input-row { display:flex; gap:10px; margin:0 14px 10px; }
+  .input-row input {
+    flex:1; border:1px solid #eee; border-radius:12px; padding:13px 14px;
+    font-size:16px; outline:none; background:#fff;
+  }
+  .input-row input:focus { border-color:#E8565C; }
+  .input-row button {
+    background:#E8565C; color:#fff; border:none; border-radius:12px;
+    padding:0 22px; font-size:15px; font-weight:600;
+  }
+  /* 历史列表 */
+  .history { max-height:220px; overflow-y:auto; }
+  .h-item {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:11px 2px; border-bottom:1px solid #f2f2f2; font-size:14px;
+  }
+  .h-item:last-child { border-bottom:none; }
+  .h-item .h-left .h-date { color:#333; }
+  .h-item .h-left .h-time { font-size:12px; color:#999; margin-top:2px; }
+  .h-item .h-w { font-weight:600; }
+  .h-item .h-del { color:#E8565C; font-size:13px; padding-left:14px; background:none; border:none; }
+  .empty { text-align:center; color:#bbb; font-size:13px; padding:24px 0; }
+  .foot-btn { display:flex; justify-content:center; margin-top:14px; }
+  .foot-btn button { background:#FDECEC; color:#E8565C; border:none; border-radius:12px; padding:10px 20px; font-size:13px; }
+  .tip { text-align:center; font-size:11px; color:#bbb; margin-top:10px; }
 </style>
 </head>
 <body>
-<div class="tab-wrap">
-  <button class="tab" data-page="record">记录</button>
-  <button class="tab active" data-page="stat">统计</button>
+<!-- 顶部栏 -->
+<div class="navbar">
+  <div class="back">‹</div>
+  <div class="title">体重</div>
+  <div class="right"></div>
 </div>
-
-<div class="page" id="recordPage">
-  <div class="record-input">
-    <input id="weightInput" placeholder="输入体重(斤)" type="number" step="0.1">
-    <button id="saveBtn">保存</button>
-  </div>
-  <div class="card">
-    <div class="history-title" style="font-size:18px;font-weight:600;margin-bottom:12px">历史记录</div>
-    <div id="historyList"></div>
-    <button class="clear-btn" id="clearBtn">清空全部记录</button>
-  </div>
-  <div class="tip">数据保存在本机浏览器，清除浏览器缓存会丢失</div>
+<!-- 录入 -->
+<div class="input-row">
+  <input id="weightInput" type="number" step="0.01" placeholder="输入体重 (kg)">
+  <button onclick="saveWeight()">保存</button>
 </div>
-
-<div class="page active" id="statPage">
-  <div class="card">
-    <div class="target-head">
-      <div class="target-avatar">👤</div>
-      <div class="target-text">
-        <h4>体重</h4>
-        <p>负向目标：<span id="goalText">140</span>斤 / 每月</p>
-      </div>
-    </div>
-    <div class="progress-row">
-      <div class="circle-box">
-        <svg width="130" height="130">
-          <circle class="circle-bg" cx="65" cy="65" r="55"></circle>
-          <circle id="progressRing" class="circle-ring" cx="65" cy="65" r="55" stroke-dasharray="345.4" stroke-dashoffset="345.4"></circle>
-        </svg>
-        <div class="circle-inner">
-          <div class="c-num" id="ringVal">0</div>
-          <div class="c-sub">/ <span id="ringGoal">140</span></div>
-        </div>
-      </div>
-      <div class="info-right">
-        <div class="pct" id="pctText">0%</div>
-        <div class="desc" id="progressDesc">--</div>
-        <div style="margin-top:8px;color:#e53e3e;font-size:14px;cursor:pointer" id="editGoal">修改目标</div>
-      </div>
+<!-- 目标卡片 -->
+<div class="card">
+  <div class="goal-head">
+    <div class="icon">🎯</div>
+    <div>
+      <div class="g-name">目标体重</div>
+      <div class="g-sub">点击可修改目标值</div>
     </div>
   </div>
-
-  <div class="card">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-      <span>📏</span>
-      <span style="font-size:17px;font-weight:600">体重 (斤)</span>
-    </div>
-    <div class="chart-container">
-      <div class="chart-wrap">
-        <canvas id="chart"></canvas>
+  <div class="goal-mid">
+    <div class="ring-wrap">
+      <svg width="110" height="110">
+        <circle cx="55" cy="55" r="46" fill="none" stroke="#F2E2E2" stroke-width="8" />
+        <circle id="ringFg" cx="55" cy="55" r="46" fill="none" stroke="#E8565C" stroke-width="8"
+          stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="289" />
+      </svg>
+      <div class="ring-center">
+        <div class="rc-num" id="ringNow">--</div>
+        <div class="rc-sub" id="ringTarget">/ 70 kg</div>
       </div>
     </div>
-  </div>
-
-  <div class="card stat-grid">
-    <div class="stat-item">
-      <h3 id="latest">--</h3>
-      <p>最新数值</p>
-    </div>
-    <div class="stat-item">
-      <h3 id="count">0</h3>
-      <p>记录次数</p>
-    </div>
-    <div class="stat-item">
-      <h3 id="max">--</h3>
-      <p>最高数值</p>
-    </div>
-    <div class="stat-item">
-      <h3 id="min">--</h3>
-      <p>最低数值</p>
+    <div class="goal-text">
+      <div class="gt-title">减重进度</div>
+      <div class="gt-desc" id="goalDesc">暂无记录，先录入第一条体重</div>
+      <span class="goal-edit" onclick="editTarget()">修改目标</span>
     </div>
   </div>
-  <div class="tip">图表区域可以左右滑动查看更早日期，同一天多条记录全部展示</div>
 </div>
-
+<!-- 图表卡片 -->
+<div class="card chart-card">
+  <div class="chart-title">📈 体重 (kg)</div>
+  <div class="chart-scroll">
+    <div class="chart-box" id="chartBox"></div>
+  </div>
+</div>
+<!-- 统计卡片 -->
+<div class="card">
+  <div class="stat-grid">
+    <div class="stat-item"><div class="si-num" id="stLatest">--</div><div class="si-label">最新数值</div></div>
+    <div class="stat-item"><div class="si-num" id="stCount">0</div><div class="si-label">记录次数</div></div>
+    <div class="stat-item"><div class="si-num" id="stMax">--</div><div class="si-label">最高数值</div></div>
+    <div class="stat-item"><div class="si-num" id="stMin">--</div><div class="si-label">最低数值</div></div>
+  </div>
+</div>
+<!-- 历史记录 -->
+<div class="card">
+  <div class="chart-title" style="margin-bottom:4px;">历史记录</div>
+  <div class="history" id="historyBox"></div>
+  <div class="foot-btn">
+    <button onclick="clearAll()">清空全部记录</button>
+  </div>
+  <div class="tip">数据保存在本机浏览器，清除浏览器数据会丢失</div>
+</div>
 <script>
-const RING_CIRC = 2 * Math.PI * 55;
-let goalWeight = parseFloat(localStorage.getItem('goalWeight')) || 140;
-let records = JSON.parse(localStorage.getItem('weightRecords') || '[]');
-let chart = null;
-
-// 标签切换
-document.querySelectorAll('.tab').forEach(tab=>{
-  tab.onclick = ()=>{
-    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    tab.classList.add('active');
-    const pid = tab.dataset.page === 'record' ? 'recordPage' : 'statPage';
-    document.getElementById(pid).classList.add('active');
-    if(pid === 'statPage') renderChart();
-  }
-})
-
-function saveStorage(){
-  localStorage.setItem('weightRecords', JSON.stringify(records));
-  localStorage.setItem('goalWeight', goalWeight);
+const LS_KEY = 'weightData_v2';
+const TARGET_KEY = 'weightTarget_v2';
+let data = JSON.parse(localStorage.getItem(LS_KEY)) || [];
+let target = Number(localStorage.getItem(TARGET_KEY)) || 70;
+/* ---------- 工具 ---------- */
+function pad(n){ return n<10 ? '0'+n : ''+n; }
+function dateKey(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function fmtDate(ts){
+  const d = new Date(ts);
+  return `${d.getMonth()+1}/${d.getDate()}`;
 }
-
-function getMonthRecords(){
-  const now = new Date();
-  const curMonth = now.getMonth();
-  const curYear = now.getFullYear();
-  return records.filter(r=>{
-    const d = new Date(r.rawTime);
-    return d.getMonth() === curMonth && d.getFullYear() === curYear;
-  })
+function fmtTime(ts){
+  const d = new Date(ts);
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
-
-function updateStat(){
-  const monthRec = getMonthRecords();
-  document.getElementById('goalText').innerText = goalWeight;
-  document.getElementById('ringGoal').innerText = goalWeight;
-  if(monthRec.length ===0){
-    document.getElementById('ringVal').innerText = '--';
-    document.getElementById('pctText').innerText = '0%';
-    document.getElementById('progressDesc').innerText = '暂无本月数据';
-    document.getElementById('latest').innerText = '--';
-    document.getElementById('count').innerText = '0';
-    document.getElementById('max').innerText = '--';
-    document.getElementById('min').innerText = '--';
-    document.getElementById('progressRing').style.strokeDashoffset = RING_CIRC;
+/* ---------- 保存 / 删除 ---------- */
+function saveWeight(){
+  const w = Number(document.getElementById('weightInput').value);
+  if(!w || w<30 || w>300){ alert('请输入有效的体重'); return; }
+  data.push({ ts: Date.now(), weight: w });
+  data.sort((a,b)=>a.ts-b.ts);
+  persist(); render();
+  document.getElementById('weightInput').value='';
+}
+function delOne(i){
+  if(!confirm('确定删除这条记录？')) return;
+  data.splice(i,1); persist(); render();
+}
+function clearAll(){
+  if(!confirm('确定删除全部记录？无法恢复！')) return;
+  data=[]; persist(); render();
+}
+function editTarget(){
+  const v = Number(prompt('请输入目标体重 (kg)', target));
+  if(v && v>20 && v<300){ target = v; localStorage.setItem(TARGET_KEY, target); render(); }
+}
+function persist(){ localStorage.setItem(LS_KEY, JSON.stringify(data)); }
+/* ---------- 渲染 ---------- */
+function render(){
+  renderStats();
+  renderChart();
+  renderHistory();
+}
+function renderStats(){
+  const el = id => document.getElementById(id);
+  if(data.length===0){
+    el('stLatest').textContent='--'; el('stCount').textContent='0';
+    el('stMax').textContent='--'; el('stMin').textContent='--';
+    el('ringNow').textContent='--';
+    el('ringTarget').textContent='/ '+target+' kg';
+    el('goalDesc').textContent='暂无记录，先录入第一条体重';
+    el('ringFg').style.strokeDashoffset='289';
     return;
   }
-  const vals = monthRec.map(x=>x.weight);
-  const latestVal = vals[vals.length-1];
-  const maxVal = Math.max(...vals);
-  const minVal = Math.min(...vals);
-  const total = latestVal;
-  const ratio = total / goalWeight;
-  const pct = (ratio * 100).toFixed(1);
-  document.getElementById('ringVal').innerText = total;
-  document.getElementById('pctText').innerText = pct + '%';
-  document.getElementById('progressDesc').innerText = total > goalWeight ? `已超出 ${(total-goalWeight).toFixed(1)}斤，本月目标已失败` : `还差 ${(goalWeight-total).toFixed(1)}斤达成目标`;
-  const offset = RING_CIRC - Math.min(1, ratio) * RING_CIRC;
-  document.getElementById('progressRing').style.strokeDashoffset = offset;
-  document.getElementById('latest').innerText = latestVal.toFixed(1);
-  document.getElementById('count').innerText = monthRec.length;
-  document.getElementById('max').innerText = maxVal.toFixed(1);
-  document.getElementById('min').innerText = minVal.toFixed(1);
+  const weights = data.map(d=>d.weight);
+  const latest = data[data.length-1].weight;
+  const max = Math.max(...weights), min = Math.min(...weights);
+  el('stLatest').textContent = latest.toFixed(1)+' kg';
+  el('stCount').textContent = data.length+' 次';
+  el('stMax').textContent = max.toFixed(1)+' kg';
+  el('stMin').textContent = min.toFixed(1)+' kg';
+  el('ringNow').textContent = latest.toFixed(1);
+  el('ringTarget').textContent = '/ '+target+' kg';
+  // 进度：以首条记录为起点，到目标为终点
+  const start = data[0].weight;
+  const total = start - target;
+  let pct;
+  if(total <= 0){ pct = latest <= target ? 100 : 0; }
+  else { pct = Math.max(0, Math.min(100, (start-latest)/total*100)); }
+  const C = 289;
+  el('ringFg').style.strokeDashoffset = C*(1-pct/100);
+  const diff = latest - target;
+  el('goalDesc').textContent = diff>0
+    ? `距目标还差 ${diff.toFixed(1)} kg，已完成 ${pct.toFixed(0)}%`
+    : `已达成目标，低于目标 ${Math.abs(diff).toFixed(1)} kg`;
 }
-
+/* ---------- 图表 ---------- */
 function renderChart(){
-  const ctx = document.getElementById('chart').getContext('2d');
-  if(chart) chart.destroy();
-  const monthRec = getMonthRecords();
-  if(monthRec.length ===0) return;
-  // 按日期分组，同一天多条全部保留
-  const groups = {};
-  monthRec.forEach(r=>{
-    const d = new Date(r.rawTime);
-    const key = `${d.getMonth()+1}/${d.getDate()}`;
-    if(!groups[key]) groups[key] = [];
-    groups[key].push(r.weight);
-  })
-  const labels = Object.keys(groups);
-  const datasets = [{
-    label:'体重',
-    data: labels.map(k=>groups[k]),
-    borderColor:'#e53e3e',
-    backgroundColor:'rgba(229,62,62,0.12)',
-    fill:true,
-    tension:0.25,
-    pointRadius:5,
-    pointHoverRadius:7
-  }]
-  chart = new Chart(ctx,{
-    type:'line',
-    data:{labels,datasets},
-    options:{
-      responsive:true,
-      maintainAspectRatio:false,
-      parsing:{xAxisKey:'x'},
-      scales:{
-        y:{suggestedMin: Math.min(...monthRec.map(x=>x.weight))-3, suggestedMax: Math.max(...monthRec.map(x=>x.weight))+3}
-      },
-      plugins:{legend:{display:false}}
-    }
-  })
-  // 滚动到最右侧最新日期
-  const box = document.querySelector('.chart-container');
-  box.scrollLeft = box.scrollWidth;
+  const box = document.getElementById('chartBox');
+  if(data.length===0){
+    box.innerHTML = '<div class="empty">暂无数据，录入后自动生成曲线</div>';
+    return;
+  }
+  // 按日期分组
+  const dayMap = {};
+  data.forEach(d=>{
+    const k = dateKey(new Date(d.ts));
+    (dayMap[k] = dayMap[k]||[]).push(d);
+  });
+  const days = Object.keys(dayMap).sort();
+  const DAY_W = 64;          // 每天固定横向间距
+  const PAD_L = 42, PAD_R = 16, PAD_T = 16, PAD_B = 28;
+  const H = 240;
+  const W = Math.max(days.length*DAY_W + PAD_L + PAD_R, 320);
+  const weights = data.map(d=>d.weight);
+  let min = Math.min(...weights), max = Math.max(...weights);
+  if(min===max){ min-=1; max+=1; }
+  const padV = (max-min)*0.15;
+  min -= padV; max += padV;
+  const yOf = w => PAD_T + (max-w)/(max-min)*(H-PAD_T-PAD_B);
+  const xOfDay = idx => PAD_L + idx*DAY_W + DAY_W/2;
+  // 同日多条：在日列内微偏移，避免重叠
+  const pts = []; // {x,y,weight,ts}
+  days.forEach((k, di)=>{
+    const arr = dayMap[k];
+    arr.forEach((d, i)=>{
+      const off = arr.length>1 ? (i-(arr.length-1)/2)*14 : 0;
+      pts.push({ x: xOfDay(di)+off, y: yOf(d.weight), weight:d.weight, ts:d.ts, dayIdx:di });
+    });
+  });
+  pts.sort((a,b)=>a.ts-b.ts);
+  let svg = `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">`;
+  // 横向网格 + Y轴刻度（5档）
+  const ticks = 5;
+  for(let t=0;t<=ticks;t++){
+    const v = min + (max-min)*t/ticks;
+    const y = yOf(v);
+    svg += `<line x1="${PAD_L}" y1="${y}" x2="${W-PAD_R}" y2="${y}" stroke="#eee" stroke-dasharray="4 4" />`;
+    svg += `<text x="${PAD_L-6}" y="${y+4}" text-anchor="end" font-size="10" fill="#999">${v.toFixed(1)}</text>`;
+  }
+  // X轴日期标签
+  days.forEach((k, di)=>{
+    const d = new Date(k);
+    svg += `<text x="${xOfDay(di)}" y="${H-8}" text-anchor="middle" font-size="10" fill="#999">${d.getDate()}日</text>`;
+  });
+  // 填充面积（按时间顺序连线）
+  if(pts.length>1){
+    let line = pts.map((p,i)=>`${i===0?'M':'L'}${p.x},${p.y}`).join(' ');
+    let area = line + ` L${pts[pts.length-1].x},${H-PAD_B} L${pts[0].x},${H-PAD_B} Z`;
+    svg += `<path d="${area}" fill="rgba(232,86,92,0.10)" />`;
+    svg += `<path d="${line}" fill="none" stroke="#E8565C" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />`;
+  }
+  // 数据点
+  pts.forEach(p=>{
+    svg += `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#fff" stroke="#E8565C" stroke-width="2">
+      <title>${fmtDate(p.ts)} ${fmtTime(p.ts)}  ${p.weight.toFixed(1)} kg</title></circle>`;
+  });
+  svg += '</svg>';
+  box.innerHTML = svg;
+  // 滚动到最右（最新日期）
+  const sc = box.parentElement;
+  sc.scrollLeft = sc.scrollWidth;
 }
-
+/* ---------- 历史列表 ---------- */
 function renderHistory(){
-  const wrap = document.getElementById('historyList');
-  wrap.innerHTML = '';
-  [...records].reverse().forEach((item,idx)=>{
-    const realIdx = records.length - 1 - idx;
-    const d = new Date(item.rawTime);
-    const dateStr = `${d.getMonth()+1}/${d.getDate()}`;
-    const timeStr = `${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
-    const div = document.createElement('div');
-    div.className = 'history-item';
-    div.innerHTML = `
-      <div class="left-info">
-        <div class="dt">${dateStr}</div>
-        <div class="tm">${timeStr}</div>
+  const box = document.getElementById('historyBox');
+  if(data.length===0){ box.innerHTML='<div class="empty">暂无记录</div>'; return; }
+  let html='';
+  const arr = data.map((d,i)=>({...d, idx:i})).reverse();
+  arr.forEach(d=>{
+    html += `<div class="h-item">
+      <div class="h-left">
+        <div class="h-date">${fmtDate(d.ts)}</div>
+        <div class="h-time">${fmtTime(d.ts)}</div>
       </div>
-      <div class="right-area">
-        <span class="w-val">${item.weight.toFixed(1)} 斤</span>
-        <span class="del-btn" data-i="${realIdx}">删除</span>
+      <div style="display:flex;align-items:center;">
+        <div class="h-w">${d.weight.toFixed(1)} kg</div>
+        <button class="h-del" onclick="delOne(${d.idx})">删除</button>
       </div>
-    `
-    wrap.appendChild(div);
-  })
+    </div>`;
+  });
+  box.innerHTML = html;
 }
-
-function bindEvent(){
-  document.getElementById('saveBtn').onclick = ()=>{
-    const v = parseFloat(document.getElementById('weightInput').value);
-    if(isNaN(v) || v<=0) return alert('请输入有效的体重');
-    records.push({weight:v, rawTime: new Date().toISOString()});
-    saveStorage();
-    document.getElementById('weightInput').value='';
-    renderHistory();
-    updateStat();
-  }
-  document.getElementById('editGoal').onclick = ()=>{
-    const input = prompt('设置本月目标体重(斤)', goalWeight);
-    if(input===null) return;
-    const num = parseFloat(input);
-    if(isNaN(num) || num<=0) return alert('数值错误');
-    goalWeight = num;
-    saveStorage();
-    updateStat();
-    renderChart();
-  }
-  document.getElementById('historyList').onclick = e=>{
-    if(e.target.classList.contains('del-btn')){
-      const i = Number(e.target.dataset.i);
-      records.splice(i,1);
-      saveStorage();
-      renderHistory();
-      updateStat();
-      renderChart();
-    }
-  }
-  document.getElementById('clearBtn').onclick = ()=>{
-    if(!confirm('确定清空全部记录？不可恢复！')) return;
-    records = [];
-    saveStorage();
-    renderHistory();
-    updateStat();
-    renderChart();
-  }
-}
-
-function init(){
-  renderHistory();
-  updateStat();
-  renderChart();
-  bindEvent();
-}
-init();
+render();
 </script>
 </body>
 </html>
