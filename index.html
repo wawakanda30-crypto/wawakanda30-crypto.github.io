@@ -20,7 +20,7 @@
     box-shadow:0 1px 3px rgba(0,0,0,.05);
   }
   .goal-head { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
-  .goal-head .icon { width:38px; height:38px; border-radius:50%; background:#FDECEC; display:flex; align-items:center; justify-content:center; font-size:18px; }
+.goal-head .icon { width:38px; height:38px; border-radius:50%; background:#FDECEC; display:flex; align-items:center; justify-content:center; font-size:18px; }
   .goal-head .g-name { font-size:16px; font-weight:600; }
   .goal-head .g-sub { font-size:12px; color:#999; margin-top:2px; }
   .goal-mid { display:flex; align-items:center; gap:18px; }
@@ -33,7 +33,8 @@
   .goal-text .gt-desc { font-size:13px; color:#999; line-height:1.6; }
   .goal-edit { font-size:12px; color:#E8565C; margin-top:8px; cursor:pointer; display:inline-block; }
 
-  .chart-card .chart-title { display:flex; align-items:center; gap:6px; font-size:15px; font-weight:600; margin-bottom:10px; }
+  /* 图表：标题与左侧Y轴固定，只有曲线区域可左右滑动 */
+.chart-card .chart-title { display:flex; align-items:center; gap:6px; font-size:15px; font-weight:600; margin-bottom:10px; }
   .chart-body { display:flex; align-items:stretch; }
   .y-axis { position:relative; width:42px; flex-shrink:0; height:240px; overflow:visible; }
   .y-axis .ytick { position:absolute; right:6px; font-size:10px; line-height:1; color:#999; transform:translateY(-50%); white-space:nowrap; }
@@ -47,7 +48,7 @@
   .stat-item .si-num { font-size:20px; font-weight:700; }
   .stat-item .si-label { font-size:12px; color:#999; margin-top:4px; }
   .input-row { display:flex; gap:10px; margin:0 14px 10px; }
-  .input-row input { flex:1; border:1px solid #eee; border-radius:12px; padding:13px 14px; font-size:16px; outline:none; background:#fff; }
+.input-row input { flex:1; border:1px solid #eee; border-radius:12px; padding:13px 14px; font-size:16px; outline:none; background:#fff; }
   .input-row input:focus { border-color:#E8565C; }
   .input-row button { background:#E8565C; color:#fff; border:none; border-radius:12px; padding:0 22px; font-size:15px; font-weight:600; }
   .history { max-height:220px; overflow-y:auto; }
@@ -60,7 +61,7 @@
   .empty { text-align:center; color:#bbb; font-size:13px; padding:24px 0; }
   .foot-btn { display:flex; justify-content:center; margin-top:14px; }
   .foot-btn button { background:#FDECEC; color:#E8565C; border:none; border-radius:12px; padding:10px 20px; font-size:13px; }
-  .tip { text-align:center; font-size:11px; color:#bbb; margin-top:10px; }
+.tip { text-align:center; font-size:11px; color:#bbb; margin-top:10px; }
 </style>
 </head>
 <body>
@@ -72,7 +73,7 @@
 </div>
 
 <div class="input-row">
-  <input id="weightInput" type="number" step="0.01" placeholder="输入体重 (kg)">
+  <input id="weightInput" type="number" step="0.1" placeholder="输入体重 (斤)">
   <button onclick="saveWeight()">保存</button>
 </div>
 
@@ -93,7 +94,7 @@
       </svg>
       <div class="ring-center">
         <div class="rc-num" id="ringNow">--</div>
-        <div class="rc-sub" id="ringTarget">/ 70 kg</div>
+<div class="rc-sub" id="ringTarget">/ 140 斤</div>
       </div>
     </div>
     <div class="goal-text">
@@ -105,7 +106,7 @@
 </div>
 
 <div class="card chart-card">
-  <div class="chart-title">📈 体重 (kg)</div>
+  <div class="chart-title">📈 体重 (斤)</div>
   <div class="chart-body">
     <div class="y-axis" id="yAxis"></div>
     <div class="chart-scroll">
@@ -120,7 +121,7 @@
     <div class="stat-item"><div class="si-num" id="stCount">0</div><div class="si-label">记录次数</div></div>
     <div class="stat-item"><div class="si-num" id="stMax">--</div><div class="si-label">最高数值</div></div>
     <div class="stat-item"><div class="si-num" id="stMin">--</div><div class="si-label">最低数值</div></div>
-  </div>
+</div>
 </div>
 
 <div class="card">
@@ -131,10 +132,10 @@
 </div>
 
 <script>
-const LS_KEY = 'weightData_v2';
-const TARGET_KEY = 'weightTarget_v2';
+const LS_KEY = 'weightData_jin_v3';
+const TARGET_KEY = 'weightTarget_jin_v3';
 let data = JSON.parse(localStorage.getItem(LS_KEY)) || [];
-let target = Number(localStorage.getItem(TARGET_KEY)) || 70;
+let target = Number(localStorage.getItem(TARGET_KEY)) || 140;
 
 function pad(n){ return n<10 ? '0'+n : ''+n; }
 function dateKey(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
@@ -143,9 +144,9 @@ function fmtTime(ts){ const d = new Date(ts); return `${pad(d.getHours())}:${pad
 
 function saveWeight(){
   const w = Number(document.getElementById('weightInput').value);
-  if(!w || w<30 || w>300){ alert('请输入有效的体重'); return; }
+  if(!w || w<50 || w>400){ alert('请输入有效的体重'); return; }
   data.push({ ts: Date.now(), weight: w });
-  data.sort((a,b)=>a.ts-b.ts);
+data.sort((a,b)=>a.ts-b.ts);
   persist(); render();
   document.getElementById('weightInput').value='';
 }
@@ -158,8 +159,8 @@ function clearAll(){
   data=[]; persist(); render();
 }
 function editTarget(){
-  const v = Number(prompt('请输入目标体重 (kg)', target));
-  if(v && v>20 && v<300){ target = v; localStorage.setItem(TARGET_KEY, target); render(); }
+  const v = Number(prompt('请输入目标体重 (斤)', target));
+  if(v && v>50 && v<400){ target = v; localStorage.setItem(TARGET_KEY, target); render(); }
 }
 function persist(){ localStorage.setItem(LS_KEY, JSON.stringify(data)); }
 
@@ -171,20 +172,20 @@ function renderStats(){
     el('stLatest').textContent='--'; el('stCount').textContent='0';
     el('stMax').textContent='--'; el('stMin').textContent='--';
     el('ringNow').textContent='--';
-    el('ringTarget').textContent='/ '+target+' kg';
+    el('ringTarget').textContent='/ '+target+' 斤';
     el('goalDesc').textContent='暂无记录，先录入第一条体重';
     el('ringFg').style.strokeDashoffset='289';
-    return;
+return;
   }
   const weights = data.map(d=>d.weight);
   const latest = data[data.length-1].weight;
   const max = Math.max(...weights), min = Math.min(...weights);
-  el('stLatest').textContent = latest.toFixed(1)+' kg';
+  el('stLatest').textContent = latest.toFixed(1)+' 斤';
   el('stCount').textContent = data.length+' 次';
-  el('stMax').textContent = max.toFixed(1)+' kg';
-  el('stMin').textContent = min.toFixed(1)+' kg';
+  el('stMax').textContent = max.toFixed(1)+' 斤';
+  el('stMin').textContent = min.toFixed(1)+' 斤';
   el('ringNow').textContent = latest.toFixed(1);
-  el('ringTarget').textContent = '/ '+target+' kg';
+  el('ringTarget').textContent = '/ '+target+' 斤';
   const start = data[0].weight;
   const total = start - target;
   let pct;
@@ -194,14 +195,14 @@ function renderStats(){
   el('ringFg').style.strokeDashoffset = C*(1-pct/100);
   const diff = latest - target;
   el('goalDesc').textContent = diff>0
-    ? `距目标还差 ${diff.toFixed(1)} kg，已完成 ${pct.toFixed(0)}%`
-    : `已达成目标，低于目标 ${Math.abs(diff).toFixed(1)} kg`;
+    ? `距目标还差 ${diff.toFixed(1)} 斤，已完成 ${pct.toFixed(0)}%`
+    : `已达成目标，低于目标 ${Math.abs(diff).toFixed(1)} 斤`;
 }
 
 function renderChart(){
   const box = document.getElementById('chartBox');
   const yAxis = document.getElementById('yAxis');
-  if(data.length===0){
+if(data.length===0){
     box.innerHTML = '<div class="empty">暂无数据，录入后自动生成曲线</div>';
     yAxis.innerHTML = '';
     return;
@@ -218,39 +219,41 @@ function renderChart(){
   const W = Math.max(days.length*DAY_W + PAD_R, 278);
 
   const weights = data.map(d=>d.weight);
-  let min = Math.min(...weights), max = Math.max(...weights);
-  if(min===max){ min-=1; max+=1; }
-  const padV = (max-min)*0.15;
-  min -= padV; max += padV;
+  const dMin = Math.min(...weights), dMax = Math.max(...weights);
+  // 取规整的整数刻度范围
+  let lo = Math.floor(dMin - 0.5);
+  let hi = Math.ceil(dMax + 0.5);
+  let step = (hi - lo) <= 5 ? 1 : Math.ceil((hi - lo)/5);
+  lo = Math.floor(lo/step)*step;
+  hi = Math.ceil(hi/step)*step;
+  const ticksArr = [];
+  for(let v=lo; v<=hi; v+=step) ticksArr.push(v);
 
-  const yOf = w => PAD_T + (max-w)/(max-min)*(H-PAD_T-PAD_B);
+  const yOf = w => PAD_T + (hi-w)/(hi-lo)*(H-PAD_T-PAD_B);
   const xOfDay = idx => idx*DAY_W + DAY_W/2;
 
   const pts = [];
   days.forEach((k, di)=>{
     const arr = dayMap[k];
     arr.forEach((d, i)=>{
-      const off = arr.length>1 ? (i-(arr.length-1)/2)*14 : 0;
+const off = arr.length>1 ? (i-(arr.length-1)/2)*14 : 0;
       pts.push({ x: xOfDay(di)+off, y: yOf(d.weight), weight:d.weight, ts:d.ts, dayIdx:di });
     });
   });
   pts.sort((a,b)=>a.ts-b.ts);
 
-  const ticks = 5;
   let yHtml = '';
-  for(let t=0;t<=ticks;t++){
-    const v = min + (max-min)*t/ticks;
+  ticksArr.forEach(v=>{
     const y = yOf(v);
-    yHtml += `<div class="ytick" style="top:${y}px">${v.toFixed(1)}</div>`;
-  }
+    yHtml += `<div class="ytick" style="top:${y}px">${v}</div>`;
+  });
   yAxis.innerHTML = yHtml;
 
   let svg = `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">`;
-  for(let t=0;t<=ticks;t++){
-    const v = min + (max-min)*t/ticks;
+  ticksArr.forEach(v=>{
     const y = yOf(v);
     svg += `<line x1="0" y1="${y}" x2="${W-PAD_R}" y2="${y}" stroke="#eee" stroke-dasharray="4 4" />`;
-  }
+  });
   days.forEach((k, di)=>{
     const d = new Date(k);
     svg += `<text x="${xOfDay(di)}" y="${H-8}" text-anchor="middle" font-size="10" fill="#999">${d.getDate()}日</text>`;
@@ -259,11 +262,11 @@ function renderChart(){
     let line = pts.map((p,i)=>`${i===0?'M':'L'}${p.x},${p.y}`).join(' ');
     let area = line + ` L${pts[pts.length-1].x},${H-PAD_B} L${pts[0].x},${H-PAD_B} Z`;
     svg += `<path d="${area}" fill="rgba(232,86,92,0.10)" />`;
-    svg += `<path d="${line}" fill="none" stroke="#E8565C" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />`;
+svg += `<path d="${line}" fill="none" stroke="#E8565C" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />`;
   }
   pts.forEach(p=>{
     svg += `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#fff" stroke="#E8565C" stroke-width="2">
-      <title>${fmtDate(p.ts)} ${fmtTime(p.ts)}  ${p.weight.toFixed(1)} kg</title></circle>`;
+      <title>${fmtDate(p.ts)} ${fmtTime(p.ts)}  ${p.weight.toFixed(1)} 斤</title></circle>`;
   });
   svg += '</svg>';
   box.innerHTML = svg;
@@ -284,7 +287,7 @@ function renderHistory(){
         <div class="h-time">${fmtTime(d.ts)}</div>
       </div>
       <div style="display:flex;align-items:center;">
-        <div class="h-w">${d.weight.toFixed(1)} kg</div>
+        <div class="h-w">${d.weight.toFixed(1)} 斤</div>
         <button class="h-del" onclick="delOne(${d.idx})">删除</button>
       </div>
     </div>`;
